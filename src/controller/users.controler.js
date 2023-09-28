@@ -25,32 +25,31 @@ class UserController {
             await User.CreateUserModel(dataFinal);
             await User.CreateLoginModel(loginInfo);
 
-            res.send({message:"Thêm thành công"});
+            res.send({ message: "Thêm thành công" });
         } catch (error) {
             console.log(error)
-            res.send({message:"Thêm thất bại"})
+            res.send({ message: "Thêm thất bại" })
         }
     }
-    async createCaLamViec(req,res,next)
-    {
+    async createCaLamViec(req, res, next) {
         console.log(req.body)
         try {
-             await User.addCaLamViecModel(req.body);
+            await User.addCaLamViecModel(req.body);
 
-            res.status(200).send({message:"Thêm thành công"});
+            res.status(200).send({ message: "Thêm thành công" });
         } catch (error) {
             console.log(error)
-            res.send({message:'Thêm thất bại'})
+            res.send({ message: 'Thêm thất bại' })
         }
     }
     async getUserByID(req, res, next) {
         try {
 
             const result = await User.getUserByIDModel(req.params.MaNV);
-            res.send(result);
+            res.status(200).send(result);
         } catch (error) {
             console.log(error)
-            res.send('That bai')
+            res.status(404).send({ message: 'That bai' })
         }
     }
     async getAllCaLamViec(req, res, next) {
@@ -64,35 +63,68 @@ class UserController {
         }
     }
 
-    async createDanhGiaNhanVien(req,res,next)
-    {
+    async createDanhGiaNhanVien(req, res, next) {
         try {
+            const userID = await User.getUserByIDModel(req.body.MaNhanVien)
+            if (userID) {
+                const result = await User.createDanhGiaNhanVienModel(req.body);
+                res.status(200).send({ message: "Thêm đánh giá thành công" });
 
-            const result = await User.createDanhGiaNhanVienModel(req.body);
-            res.status(200).send({message:"Thêm đánh giá thành công"});
+            }
+            else {
+                res.status(200).send({ message: "Mã nhân viên không tồn tại " });
+
+            }
         } catch (error) {
             console.log(error)
-            res.send({message:'Thêm thất bại'})
+            res.status(500).send({ message: 'Thêm thất bại' });
         }
     }
-    async createThemDonNghi(req,res,next)
-    {
+
+    async createThemDonNghi(req, res, next) {
         try {
 
             const result = await User.createThemDonNghiModel(req.body);
-            res.status(200).send({message:"Thêm đơn nghỉ thành công"});
+            res.status(200).send({ message: "Thêm đơn nghỉ thành công" });
         } catch (error) {
             console.log(error)
-            res.send({message:'Thêm thất bại'})
+            res.send({ message: 'Thêm thất bại' })
         }
     }
-    async getCalamViecIDController(req,res,next)
-    {
+    async createHopDong(req, res, next) {
         try {
-            const result=await User.getCaLamViecByIDModel(req.params.CaID)
+            const userID = await User.getUserByIDModel(req.body.MaNhanVien)
+            if (userID) {
+
+
+                const HopDong = await User.getHopDongByIDUserModel(req.body.MaNhanVien)
+
+                if (!HopDong) {
+
+
+                    const result = await User.createHopDongModel(req.body);
+                    res.status(200).send({ message: "Thêm hợp đồng thành công" });
+                }
+                else {
+                    res.status(200).send({ message: "Nhân viên đã có hợp đồng" });
+
+                }
+            }
+            else {
+                res.status(200).send({ message: "Mã nhân viên không tồn tại " });
+
+            }
+        } catch (error) {
+            console.log(error)
+            res.status(500).send({ message: 'Thêm thất bại' });
+        }
+    }
+    async getCalamViecIDController(req, res, next) {
+        try {
+            const result = await User.getCaLamViecByIDModel(req.params.CaID)
             res.send(result)
         } catch (error) {
-            res.send({message:"thất bại"})
+            res.send({ message: "thất bại" })
         }
     }
     async ChangeUser(req, res, next) {
@@ -108,7 +140,7 @@ class UserController {
             res.send('That bai')
         }
     }
-    
+
     async loginAPI(req, res, next) {
         const user = {
             Username: req.body.Username,
@@ -129,7 +161,7 @@ class UserController {
             }
         } catch (error) {
             console.error(error);
-            res.send({message:"Sai tài khoản hoặc mật khẩu"})
+            res.send({ message: "Sai tài khoản hoặc mật khẩu" })
         }
     }
     async checkLogined(req, res, next) {
@@ -137,7 +169,7 @@ class UserController {
         const jwt = require('jsonwebtoken');
 
         // Thay thế bằng token thực tế và khoá bí mật (secret key)
-        
+
 
         try {
             // Giải mã token
@@ -145,7 +177,7 @@ class UserController {
 
             // Kiểm tra thời gian hết hạn (nếu cần)
             if (decodedToken.exp < Date.now() / 1000) {
-                res.send({message:"Sai rôi bạn ơi"})
+                res.send({ message: "Sai rôi bạn ơi" })
             } else {
                 res.status(200).send(decodedToken)
             }

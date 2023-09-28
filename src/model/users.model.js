@@ -74,7 +74,36 @@ class User {
     });
     return result;
   }
-  
+  async getHopDongByIDUserModel(data)
+  {
+
+    const query =`SELECT * FROM HopDong where MaNhanVien= ?`
+    const result = await new Promise(function (resolve, reject) {
+      dbconnection.query(query,data,(err, result) => {
+        if (result) {
+          resolve(result);
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return result[0];
+  }
+  async getDanhGiaByIDUserModel(data)
+  {
+
+    const query =`SELECT * FROM danhgia where MaNhanVien= ?`
+    const result = await new Promise(function (resolve, reject) {
+      dbconnection.query(query,data,(err, result) => {
+        if (result) {
+          resolve(result);
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return result[0];
+  }
   async getCaLamViecByIDModel(data)
   {
 
@@ -158,6 +187,20 @@ class User {
   async createThemDonNghiModel(data)
   {
     const query=`INSERT INTO donnghi SET ? `
+    const result = await new Promise(function (resolve, reject) {
+      dbconnection.query(query, data,(err, result) => {
+        if (result) {
+          resolve(result);
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return result;
+  }
+   async createHopDongModel(data)
+  {
+    const query=`INSERT INTO hopdong SET ? `
     const result = await new Promise(function (resolve, reject) {
       dbconnection.query(query, data,(err, result) => {
         if (result) {

@@ -16,5 +16,6 @@ UserRouter.post('/calamviec/:CaID',UserController.getAllCaLamViec)
 
 UserRouter.post('/themdanhgia',UserController.createDanhGiaNhanVien)
 UserRouter.post('/themdonnghi',UserController.createThemDonNghi)
+UserRouter.post('/themhopdong',UserController.createHopDong)
 
 module.exports = UserRouter;
