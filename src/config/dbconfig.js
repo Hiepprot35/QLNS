@@ -9,7 +9,6 @@ const dbconnection = mysql.createConnection(
         database: process.env.DB_database
     }
 )
-console.log(process.env.DB_host)
 
 async function connect() {
     try {

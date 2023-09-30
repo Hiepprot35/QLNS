@@ -17,15 +17,17 @@ class UserController {
     async createUser(req, res, next) {
         const data2 = req.body;
         const img = req.body.Image.data;
-        const loginInfo = { "Username": req.body.CCCD, "Password": req.body.CCCD, "Role": 2 }
         // console.log(img)
         try {
             const hhexString = img && img.map(byte => byte.toString(16).padStart(2, '0')).join('');
             const dataFinal = { ...data2, Image: hhexString }
-            await User.CreateUserModel(dataFinal);
-            await User.CreateLoginModel(loginInfo);
+            const result = await User.CreateUserModel(dataFinal);
+            if (result.affectedRows > 0) {
+                const loginInfo = { "Username": result.insertId, "Password": req.body.CCCD, "Role": 2 }
+                await User.CreateLoginModel(loginInfo);
 
-            res.send({ message: "Thêm thành công" });
+                res.send({ message: "Thêm thành công" });
+            }
         } catch (error) {
             console.log(error)
             res.send({ message: "Thêm thất bại" })
@@ -91,33 +93,38 @@ class UserController {
             res.send({ message: 'Thêm thất bại' })
         }
     }
+    async getAllHopDong(req, res, next) {
+        try {
+            const result = await User.getAllHopDongModel()
+            res.send(result)
+        } catch (error) {
+            res.send({ message: 'Thất bại' })
+
+        }
+    }
+    async getHopDongByIDUser(req, res, next) {
+        try {
+            const HopDong = await User.getHopDongByIDUserModel(req.params.MaNV)
+            res.send(HopDong)
+        } catch (error) {
+            res.send({ message: 'Thất bại' })
+
+        }
+    }
     async createHopDong(req, res, next) {
         try {
             const userID = await User.getUserByIDModel(req.body.MaNhanVien)
+            const HopDong = await User.getHopDongByIDUserModel(req.body.MaNhanVien)
             if (userID) {
-
-
-                const HopDong = await User.getHopDongByIDUserModel(req.body.MaNhanVien)
-
                 if (!HopDong) {
-
-
                     const result = await User.createHopDongModel(req.body);
-                    res.status(200).send({ message: "Thêm hợp đồng thành công" });
-                }
+                    res.status(200).send({ message: "Thêm hợp đồng thành công" });                }
                 else {
-                    res.status(200).send({ message: "Nhân viên đã có hợp đồng" });
-
-                }
-            }
+                    res.status(200).send({ message: "Nhân viên đã có hợp đồng" });    }}
             else {
-                res.status(200).send({ message: "Mã nhân viên không tồn tại " });
-
-            }
+                res.status(200).send({ message: "Mã nhân viên không tồn tại " });        }
         } catch (error) {
-            console.log(error)
-            res.status(500).send({ message: 'Thêm thất bại' });
-        }
+            res.status(500).send({ message: 'Thêm thất bại' });    }
     }
     async getCalamViecIDController(req, res, next) {
         try {
@@ -134,13 +141,24 @@ class UserController {
             const hhexString = img && img.map(byte => byte.toString(16).padStart(2, '0')).join('');
             const dataFinal = { ...data2, Image: hhexString }
             const result = await User.ChangeUserModel(dataFinal);
-            res.send("Thanh cong");
+            res.send({ message: `Thành công. Thay đổi thông tin người dùng ${data2.MaNhanVien} thành công` });
         } catch (error) {
             console.log(error)
-            res.send('That bai')
+            res.send({ message: `Thất bại. Thay đổi thông tin người dùng ${data2.MaNhanVien} thất bại` })
         }
     }
-
+    async ChangeHopDong(req, res, next) {
+        const data2 = req.body;
+        console.log(data2)
+        try {
+            const result = await User.ChangeHopDongModel(data2);
+            console.log(result)
+            res.send({ message: `Thành công. Thay đổi thông tin hợp đồng người dùng ${data2.MaNhanVien} thành công` });
+        } catch (error) {
+            console.log(error)
+            res.send({ message: `Thất bại. Thay đổi thông tin hợp đồng người dùng ${data2.MaNhanVien} thất bại` })
+        }
+    }
     async loginAPI(req, res, next) {
         const user = {
             Username: req.body.Username,
@@ -167,15 +185,8 @@ class UserController {
     async checkLogined(req, res, next) {
         const token = req.body.token
         const jwt = require('jsonwebtoken');
-
-        // Thay thế bằng token thực tế và khoá bí mật (secret key)
-
-
         try {
-            // Giải mã token
             const decodedToken = jwt.verify(token, process.env.APP_Secret_token);
-
-            // Kiểm tra thời gian hết hạn (nếu cần)
             if (decodedToken.exp < Date.now() / 1000) {
                 res.send({ message: "Sai rôi bạn ơi" })
             } else {

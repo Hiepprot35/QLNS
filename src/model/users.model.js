@@ -74,6 +74,20 @@ class User {
     });
     return result;
   }
+  async getAllHopDongModel()
+  {
+    const query =`SELECT * FROM HopDong `
+    const result = await new Promise(function (resolve, reject) {
+      dbconnection.query(query,(err, result) => {
+        if (result) {
+          resolve(result);
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return result;
+  }
   async getHopDongByIDUserModel(data)
   {
 
@@ -154,6 +168,19 @@ class User {
     const query=`UPDATE users SET ? WHERE MaNhanVien = ? `
     const result = await new Promise(function (resolve, reject) {
       dbconnection.query(query,[ {...data,Image:binaryImg},data.MaNhanVien],(err, result) => {
+        if (result) {
+          resolve(result);
+        } else {
+          reject(err);
+        }
+      });
+    });
+    return result;
+  }
+  async ChangeHopDongModel(data) {
+    const query=`UPDATE hopdong SET ? WHERE MaNhanVien = ? `
+    const result = await new Promise(function (resolve, reject) {
+      dbconnection.query(query,[data,data.MaNhanVien],(err, result) => {
         if (result) {
           resolve(result);
         } else {
